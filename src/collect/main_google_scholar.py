@@ -4,10 +4,11 @@ from pathlib import Path
 from google_scholar import (criar_contexto, coletar_citacoes_artigo,)
 
 # -=-=-=-=-=- configuracoes -=-=-=-=-=-=- #
-DIR = Path("./data/processed/")
-ARQUIVO_ARTIGOS = DIR / "geoinfo_artigos_processado.csv"
+DIR_RAW = Path("./data/raw/")
+DIR_PROCESSED = Path("./data/processed/")
+ARQUIVO_ARTIGOS = DIR_PROCESSED / "geoinfo_artigos_processed.csv"
 
-ARQUIVO_SAIDA = DIR / "citacoes_geoinfo.csv"
+ARQUIVO_SAIDA = DIR_RAW / "citacoes_google_scholar.csv"
 
 # ler artigos geoinfo
 df_artigos = pd.read_csv(ARQUIVO_ARTIGOS)
@@ -27,12 +28,12 @@ COLUNAS = [
     "idioma",
     "pais",
     "veiculo_publicacao",
+    "tipo_documento",
     "doi",
     "url",
 ]
 
 todas_citacoes = []
-
 
 # contexto do scholar
 playwright, context, page = criar_contexto(headless=False)
@@ -92,6 +93,7 @@ try:
                 "idioma": citacao.get("idioma"),
                 "pais": citacao.get("pais"),
                 "veiculo_publicacao": citacao.get("veiculo_publicacao"),
+                "tipo_documento": citacao.get("tipo_documento"),
                 "doi": citacao.get("doi"),
                 "url": citacao.get("url"),
             }

@@ -253,8 +253,6 @@ def extrair_metadados(url_metadata):
         celula_valor = celulas[-1]
 
         # remove espaços excessivos, mas preserva separações por <br>
-        partes = []
-
         for elemento in celula_valor.find_all("br"):
             elemento.replace_with("\n")
 
@@ -612,6 +610,7 @@ def coletar_artigo(url_artigo, edicao, url_edicao):
         "instituicoes": metadados.get("Affiliation"),
         "edicao": edicao,
         "identificador": metadados.get("Identifier"),
+        "language": metadados.get("Language"),
 
         # rastreabilidade
         "url_edicao": url_edicao,

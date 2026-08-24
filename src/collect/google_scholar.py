@@ -333,7 +333,6 @@ def aguardar_verificacao(page):
 
 
 # -=-=-=-=-=-=- busca artigo -=-=-=-=-=-=- #
-
 def buscar_artigo(page, titulo, ano=None):
     titulo_busca = (str(titulo).replace('"', '').strip())
 
@@ -406,7 +405,6 @@ def buscar_artigo(page, titulo, ano=None):
     # se existir titulo exato
     if candidatos_exatos:
         # se houver mais de um igual, preferir o que possui citation_url.
-
         candidatos_exatos_com_citacao = [candidato for candidato in candidatos_exatos if candidato["citation_url"]]
 
         if candidatos_exatos_com_citacao:
@@ -635,9 +633,7 @@ def buscar_citacoes(page, citation_url):
                 "pais": None
             }
 
-            citacoes.append(
-                citacao
-            )
+            citacoes.append(citacao)
 
             print(f"\n{len(citacoes)}. {titulo_citante}")
             print(f"Autores: {autores}")

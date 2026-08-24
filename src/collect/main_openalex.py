@@ -4,10 +4,11 @@ import time
 
 from openalex import (buscar_obra_geoinfo_openalex, buscar_citantes_openalex, ErroTemporarioOpenAlex,)
 
-DIR = Path("./data/processed/")
-ARQUIVO_ARTIGOS = DIR / "geoinfo_artigos_processado.csv"  # artigos originais do GEOINFO
-ARQUIVO_SAIDA = DIR / "citacoes_geoinfo_via_openalex.csv"
-ARQUIVO_PROGRESSO = DIR / "geoinfo_openalex_progresso.csv"  # controla quais originais já foram processados
+DIR_RAW = Path("./data/raw/")
+DIR_PROCESSED = Path("./data/processed/")
+ARQUIVO_ARTIGOS = DIR_PROCESSED / "geoinfo_artigos_processed.csv"  # artigos originais do GEOINFO
+ARQUIVO_SAIDA = DIR_RAW / "citacoes_openalex.csv"
+ARQUIVO_PROGRESSO = DIR_RAW / "openalex_progresso.csv"  # controla quais originais já foram processados
 
 EMAIL = "giuliakatherine.gkr@gmail.com"
 
@@ -54,7 +55,7 @@ try:
         print(f"\n[{indice + 1}/{total}] {titulo_original}")
 
         try:
-            obra = buscar_obra_geoinfo_openalex(titulo_original, ano=ano_original, email=EMAIL)
+            obra = buscar_obra_geoinfo_openalex(titulo_original, email=EMAIL)
         except ErroTemporarioOpenAlex:
             print("[AVISO] Indisponibilidade temporária — tentando de novo na próxima execução.")
             continue  # não marca como processado
