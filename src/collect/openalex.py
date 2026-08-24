@@ -6,6 +6,12 @@ from google_scholar import (normalizar_texto, pontuacao_titulo,)
 LIMIAR_SIMILARIDADE_OPENALEX = 0.80
 MAX_TENTATIVAS_429 = 5
 
+session = requests.Session()
+
+session.headers.update({
+    "User-Agent": "GEOINFO-Bibliometric-Analysis/1.0"
+})
+
 class ErroTemporarioOpenAlex(Exception):
     """Erro de rede/servidor — deve ser re-tentado depois, não tratado como ausência de dado."""
     pass
@@ -18,7 +24,8 @@ def _requisitar_com_retry(url, params=None, tentativas=MAX_TENTATIVAS_429):
     """
     for tentativa in range(1, tentativas + 1):
         try:
-            resp = requests.get(url, params=params, timeout=15)
+            time.sleep(1.0)
+            resp = session.get(url, params=params, timeout=15)
 
             print(f"[DEBUG] URL real: {resp.url}")
             print(f"[DEBUG] Status: {resp.status_code}")
@@ -279,7 +286,7 @@ def buscar_citantes_openalex(work, email=None):
             break
 
         pagina += 1
-        time.sleep(0.3)
+        # time.sleep(0.3)
 
     print(f"[DEBUG] Total de citantes coletados: {len(citantes)}")
 

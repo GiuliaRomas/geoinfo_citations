@@ -10,7 +10,7 @@ DIR_RAW = Path("./data/raw/")
 ARQUIVO_ENTRADA = DIR_RAW / "citacoes_google_scholar.csv"          # gerado pelo Scholar
 ARQUIVO_SAIDA = DIR / "citacoes_geoinfo_enriquecido.csv"
 
-EMAIL = "giuliakatherine.gkr@gmail.com"
+EMAIL = "giuliakatherine@gmail.com"
 
 COLUNAS_ENRIQUECIMENTO = [
     "instituicoes",
@@ -71,7 +71,7 @@ try:
         print(f"\n[{indice + 1}/{total}] {titulo}")
 
         try:
-            resultado = buscar_metadados_citante_openalex(titulo, ano=ano, email=EMAIL)
+            resultado = buscar_metadados_citante_openalex(titulo, ano=ano)
         except ErroTemporarioOpenAlex:
             print("[AVISO] Indisponibilidade temporária — deixando para a próxima execução.")
             continue  # NÃO marca status — será retentado
