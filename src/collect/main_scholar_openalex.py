@@ -12,20 +12,9 @@ ARQUIVO_SAIDA = DIR / "citacoes_geoinfo_enriquecido.csv"
 
 EMAIL = "giuliakatherine@gmail.com"
 
-COLUNAS_ENRIQUECIMENTO = [
-    "instituicoes",
-    "pais",
-    "idioma",
-    "doi",
-    "tipo_documento",
-    "topico",
-    "subcampo",
-    "campo",
-    "dominio_tematico",
-    "fonte_publicacao",
-    "status_acesso_aberto",
-    "openalex_id",
-]
+COLUNAS_ENRIQUECIMENTO = ["instituicoes", "pais", "idioma", "doi", "tipo_documento",
+                          "topico", "subcampo", "campo", "dominio_tematico",
+                          "fonte_publicacao", "status_acesso_aberto","openalex_id",]
 
 COLUNA_STATUS = "openalex_status"   # "OK" ou "SEM_MATCH" — nunca fica vazia após processar
 
