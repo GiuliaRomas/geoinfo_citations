@@ -17,20 +17,11 @@ print(f"Artigos para processar: {len(df_artigos)}")
 # colunas finais
 COLUNAS = [
     # Artigo que foi citado
-    "titulo_original",
-    "ano_original",
+    "titulo_original", "ano_original",
 
     # Artigo que citou
-    "titulo",
-    "ano",
-    "autores",
-    "instituicoes",
-    "idioma",
-    "pais",
-    "veiculo_publicacao",
-    "tipo_documento",
-    "doi",
-    "url",
+    "titulo", "ano", "autores", "instituicoes", "idioma", "pais", 
+    "veiculo_publicacao", "tipo_documento", "doi", "url",
 ]
 
 todas_citacoes = []

@@ -1,7 +1,7 @@
 import pandas as pd
 from difflib import SequenceMatcher
 
-
+# -=-=-=-=-=- correcao das instituicoes dos artigos GEOINFO -=-=-=-=-=-=- #
 INSTITUICOES_MANUAIS = {
     "GAUS: Graph Analysis of Urban Systems":
         "Universidade Federal do Rio Grande do Sul (UFRGS)",
@@ -60,7 +60,7 @@ def corrigir_edicoes_manuais(df):
     return df
 
 
-
+# -=-=-=-=- calcula a similaridade entre dois textos -=-=-=-=- #
 def similaridade_titulos(titulo1, titulo2):
     return SequenceMatcher(
         None,
@@ -69,7 +69,7 @@ def similaridade_titulos(titulo1, titulo2):
     ).ratio()
 
 
-
+# -=-=-=-=- limpa artigos geoinfo -=-=-=-=- #
 def limpar_artigos(df):
     df = df.copy()
 
@@ -104,45 +104,6 @@ from difflib import SequenceMatcher
 import numpy as np
 import pandas as pd
 
-
-# ============================================================
-# CORREÇÕES MANUAIS
-# ============================================================
-
-INSTITUICOES_MANUAIS = {
-    "GAUS: Graph Analysis of Urban Systems":
-        "Universidade Federal do Rio Grande do Sul (UFRGS)",
-
-    "TopoGeo: a data model for elaboration of cadastral survey plans and land register documents":
-        "Universidade Federal de Pernambuco (UFPE)",
-
-    "Rule-based evolution of typed spatiotemporal objects":
-        "Instituto Nacional de Pesquisas Espaciais (INPE)",
-
-    "Desenvolvimento de Sistemas de Informaçăo Geográfica Cooperativos seguindo o Padrăo Modelo-Visăo-Controle":
-        "Universidade Federal do Rio de Janeiro (UFRJ)",
-
-    "Designing and Performing Geographic Analysis Processes with GISCASE":
-        "Universidade Federal do Rio Grande do Sul (UFRGS)",
-}
-
-
-EDICOES_MANUAIS = {
-    "GAUS: Graph Analysis of Urban Systems":
-        "24a. Edição São José dos Campos 2023",
-
-    "TopoGeo: a data model for elaboration of cadastral survey plans and land register documents":
-        "22a. Edição On-Line 2021",
-
-    "Rule-based evolution of typed spatiotemporal objects":
-        "9a. Edição Campos do Jordão 2007",
-
-    "Desenvolvimento de Sistemas de Informaçăo Geográfica Cooperativos seguindo o Padrăo Modelo-Visăo-Controle":
-        "7a. Edição Campos do Jordão 2005",
-
-    "Designing and Performing Geographic Analysis Processes with GISCASE":
-        "7a. Edição Campos do Jordão 2005",
-}
 
 
 # ============================================================

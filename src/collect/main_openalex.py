@@ -10,8 +10,6 @@ ARQUIVO_ARTIGOS = DIR_PROCESSED / "geoinfo_artigos_processed.csv"  # artigos ori
 ARQUIVO_SAIDA = DIR_RAW / "citacoes_openalex.csv"
 ARQUIVO_PROGRESSO = DIR_RAW / "openalex_progresso.csv"  # controla quais originais já foram processados
 
-EMAIL = "giuliakatherine.gkr@gmail.com"
-
 COLUNAS = [
     "titulo_original", "ano_original", "url_original",
     "titulo", "ano", "autores", "instituicoes", "pais",
@@ -23,7 +21,7 @@ COLUNAS = [
 
 df_artigos = pd.read_csv(ARQUIVO_ARTIGOS)
 
-# Controle de progresso (por artigo original)
+# controle de progresso (por artigo original)
 if ARQUIVO_PROGRESSO.exists():
     df_progresso = pd.read_csv(ARQUIVO_PROGRESSO)
     titulos_processados = set(df_progresso["titulo_original"])
@@ -55,7 +53,7 @@ try:
         print(f"\n[{indice + 1}/{total}] {titulo_original}")
 
         try:
-            obra = buscar_obra_geoinfo_openalex(titulo_original, email=EMAIL)
+            obra = buscar_obra_geoinfo_openalex(titulo_original)
         except ErroTemporarioOpenAlex:
             print("[AVISO] Indisponibilidade temporária — tentando de novo na próxima execução.")
             continue  # não marca como processado
@@ -66,7 +64,7 @@ try:
             continue
 
         try:
-            citantes = buscar_citantes_openalex(obra, email=EMAIL)
+            citantes = buscar_citantes_openalex(obra)
         except ErroTemporarioOpenAlex:
             print("[AVISO] Indisponibilidade temporária ao buscar citantes — tentando de novo na próxima execução.")
             continue  # não marca como processado

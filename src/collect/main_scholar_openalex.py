@@ -7,7 +7,7 @@ from openalex import ErroTemporarioOpenAlex, buscar_metadados_citante_openalex
 
 DIR = Path("./data/processed/")
 DIR_RAW = Path("./data/raw/")
-ARQUIVO_ENTRADA = DIR_RAW / "citacoes_google_scholar.csv"          # gerado pelo Scholar
+ARQUIVO_ENTRADA = DIR_RAW / "citacoes_google_scholar.csv" # gerado pelo Scholar
 ARQUIVO_SAIDA = DIR / "citacoes_geoinfo_enriquecido.csv"
 
 EMAIL = "giuliakatherine@gmail.com"
@@ -16,13 +16,13 @@ COLUNAS_ENRIQUECIMENTO = ["instituicoes", "pais", "idioma", "doi", "tipo_documen
                           "topico", "subcampo", "campo", "dominio_tematico",
                           "fonte_publicacao", "status_acesso_aberto","openalex_id",]
 
-COLUNA_STATUS = "openalex_status"   # "OK" ou "SEM_MATCH" — nunca fica vazia após processar
+COLUNA_STATUS = "openalex_status"   # "OK" ou "SEM_MATCH" - nunca fica vazia após processar
 
 MARCADOR_SEM_MATCH = "SEM_MATCH"
 MARCADOR_OK = "OK"
 
 
-# RETOMAR DE ONDE PAROU
+# retoma de onde parou
 if ARQUIVO_SAIDA.exists():
     print(f"Retomando progresso de: {ARQUIVO_SAIDA}")
     df = pd.read_csv(ARQUIVO_SAIDA)
@@ -36,9 +36,7 @@ for coluna in COLUNAS_ENRIQUECIMENTO + [COLUNA_STATUS]:
     df[coluna] = df[coluna].astype("object")
 
 total = len(df)
-ja_processados = (
-    df[COLUNA_STATUS].notna().sum() + df["titulo"].isna().sum()
-)
+ja_processados = (df[COLUNA_STATUS].notna().sum() + df["titulo"].isna().sum())
 
 print(f"Registros totais (linhas de citação): {total}")
 print(f"Já processados (a pular): {ja_processados}")
@@ -51,7 +49,7 @@ try:
         if pd.isna(titulo):
             continue
 
-        if pd.notna(linha.get(COLUNA_STATUS)):   # <- checa o status, não um campo de dado
+        if pd.notna(linha.get(COLUNA_STATUS)):   # checa o status
             continue
 
         ano = linha.get("ano")

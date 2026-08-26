@@ -155,7 +155,6 @@ def extrair_titulo_e_link(titulo_element):
     return titulo, None
 
 def extrair_resultados(page):
-
     print("\n" + "=-" * 30)
     print("Extraindo resultados")
     print("=-" * 30)
@@ -308,10 +307,10 @@ def aguardar_verificacao(page):
     print("[AVISO] Verificação do Google Scholar")
     print("=-" * 30)
     print("Resolva a verificação manualmente no navegador.")
-    print("Depois pressione ENTER aqui no terminal.")
+    print("Depois pressione ENTER.")
 
     while True:
-        input("\nPressione ENTER quando terminar...")
+        input("\nPressione ENTER...")
         texto = page.locator("body").inner_text().lower()
 
         termos_captcha = [

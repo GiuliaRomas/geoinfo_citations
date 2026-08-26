@@ -8,10 +8,6 @@ from urllib.parse import urljoin, urlparse
 import re
 from html import unescape
 
-import pymupdf
-import io
-from pypdf import PdfReader
-
 # -=-=-=-=-=-=- configuracoes -=-=-=-=-=-=- #
 URL_PORTAL_GEOINFO = ("http://mtc-m16d.sid.inpe.br/ibi/8JMKD3MGP7W/3GDK2ML")
 URL_COLECAO_GEOINFO = ("http://mtc-m16d.sid.inpe.br/col/sid.inpe.br/mtc-m19/2014/06.02.15.03/doc/default.html")
@@ -88,7 +84,7 @@ def extract_server_from_frame_body(frame_body_url):
 
     return server
 
-
+# -=-=-=-=-=-=- servidor -=-=-=-=-=-=- #
 def extract_server_from_url(url):
     """
     Extrai o servidor mtc-* diretamente da URL.
@@ -108,7 +104,6 @@ def extract_server_from_url(url):
             return server
 
     return None
-
 
 def obter_soup_body(url):
     """
@@ -268,7 +263,7 @@ def extrair_metadados(url_metadata):
 
     return metadados
 
-
+# -=-=-=-=-=-=- url -=-=-=-=-=-=- #
 def extract_repository_from_goto(goto_url):
     """
     Extrai o repository da URL GOTO.
@@ -420,7 +415,6 @@ def testar_url_artigo(url_artigo):
 
     return None
 
-
 def obter_url_artigo(url_goto, repository, server):
     """
     Obtém a URL real do artigo.
@@ -450,19 +444,6 @@ def obter_url_artigo(url_goto, repository, server):
 
     return None
 
-def testar_url_artigo(url_artigo):
-    """
-    Testa se a URL do artigo existe.
-    """
-    if not url_artigo:
-        return None
-
-    try:
-        response = session.get(url_artigo, timeout=(10, 30), allow_redirects=True)
-        response.raise_for_status()
-        return response.url
-    except requests.RequestException:
-        return None
     
 def resolver_host_via_goto(url_goto):
     """
@@ -593,7 +574,7 @@ def coletar_artigo(url_artigo, edicao, url_edicao):
     """
     Coleta os metadados de um artigo.
     """
-    # Encontra metadata
+    # encontra metadata
     url_metadata = encontrar_url_metadata(url_artigo)
 
     if not url_metadata:
@@ -638,7 +619,7 @@ def coletar_edicao(edicao, url_edicao):
     print(f"[DEBUG] Edição recebida: {repr(edicao)}")
     print(f"[DEBUG] URL edição: {url_edicao}")
 
-    # Acessa página da edição
+    # acessa página da edição
     soup, server = obter_soup_body(url_edicao)
     
     # encontra os artigos

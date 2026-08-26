@@ -12,8 +12,9 @@ session.headers.update({
     "User-Agent": "GEOINFO-Bibliometric-Analysis/1.0"
 })
 
+# -=-=-=-=-=-=-=- tratar erros -=-=-=-=-=-=-=- #
 class ErroTemporarioOpenAlex(Exception):
-    """Erro de rede/servidor — deve ser re-tentado depois, não tratado como ausência de dado."""
+    """Erro de rede/servidor — deve ser tentado novamente depois, não tratado como ausência de dado."""
     pass
 
 def _requisitar_com_retry(url, params=None, tentativas=MAX_TENTATIVAS_429):
@@ -61,7 +62,7 @@ def _requisitar_com_retry(url, params=None, tentativas=MAX_TENTATIVAS_429):
 
     raise ErroTemporarioOpenAlex(url)
 
-
+# -=-=-=-=-=-=-=- extrai metadados -=-=-=-=-=-=-=- #
 def _extrair_metadados_work(work):
     """
     Extrai os campos de interesse de um objeto 'work' do OpenAlex
@@ -81,7 +82,6 @@ def _extrair_metadados_work(work):
                 paises.add(inst["country_code"])
 
     topico_principal = work.get("primary_topic") or {}
-
     fonte = ((work.get("primary_location") or {}).get("source") or {}).get("display_name")
 
     return {
@@ -100,16 +100,15 @@ def _extrair_metadados_work(work):
         "fonte_publicacao": fonte,
         "status_acesso_aberto": (work.get("open_access") or {}).get("oa_status"),
         "openalex_id": work.get("id"),
-        "url": work.get("id"),  # link estável do próprio OpenAlex
+        "url": work.get("id"), 
     }
 
-
+# -=-=-=-=-=-=-=- busca pelo autocomplete -=-=-=-=-=-=-=- #
 def _autocomplete_openalex(titulo, email=None):
     """
     Usa o endpoint de autocomplete do OpenAlex — o mesmo usado pela
     busca da interface do site, que na prática encontra trabalhos
-    que a busca por filter=title.search não encontra (correspondência
-    mais tolerante). Retorna até 10 candidatos resumidos.
+    que a busca por filter=title.search não encontra
     """
     base = "https://api.openalex.org/autocomplete/works"
 
@@ -126,13 +125,12 @@ def _autocomplete_openalex(titulo, email=None):
 
     return resultados
 
-
 def _buscar_work_por_id(openalex_id, email=None):
     """
-    Busca o objeto 'work' completo a partir de um ID do OpenAlex
+    Busca o objeto work completo a partir de um ID do OpenAlex
     (necessário porque o autocomplete só retorna um resumo).
     """
-    # normaliza: aceita tanto "W123..." quanto a URL completa
+    # normaliza (aceita tanto "W123..." quanto a URL completa)
     id_curto = openalex_id.split("/")[-1]
 
     base = f"https://api.openalex.org/works/{id_curto}"
@@ -146,13 +144,11 @@ def _buscar_work_por_id(openalex_id, email=None):
 
 def buscar_obra_geoinfo_openalex(titulo, ano=None, email=None):
     """
-    Busca o artigo ORIGINAL do GEOINFO no OpenAlex por título, em
-    camadas:
-      1) filter=title.search (+ ano, se informado) — mais preciso,
+    Busca o artigo original do GEOINFO no OpenAlex por título, por camadas:
+      1. filter=title.search (+ ano, se informado): é mais preciso,
          mas falha fácil com qualquer divergência textual
-      2) fallback sem filtro de ano
-      3) autocomplete/works — correspondência mais tolerante,
-         mesma engine usada pela busca da interface do site
+      2. fallback sem filtro de ano
+      3. autocomplete — correspondência mais tolerante
     """
     base = "https://api.openalex.org/works"
 
@@ -206,10 +202,7 @@ def buscar_obra_geoinfo_openalex(titulo, ano=None, email=None):
         print(f"[DEBUG] Escolhido via title.search: {melhor.get('title')!r} (score={melhor_score:.3f})")
         return melhor
 
-    # --------------------------------------------------------
-    # FALLBACK FINAL: autocomplete
-    # --------------------------------------------------------
-
+    # autocomplete
     print(f"[DEBUG] title.search não encontrou match confiável (melhor score: {melhor_score:.3f}). Tentando autocomplete...")
 
     candidatos_autocomplete = _autocomplete_openalex(titulo, email=email)
@@ -234,10 +227,7 @@ def buscar_obra_geoinfo_openalex(titulo, ano=None, email=None):
             melhor_score_ac = score
 
     if not melhor_ac or melhor_score_ac < LIMIAR_SIMILARIDADE_OPENALEX:
-        print(
-            f"[AVISO] Artigo GEOINFO não encontrado no OpenAlex (nem via autocomplete): {titulo!r} "
-            f"(melhor score: {melhor_score_ac:.3f})"
-        )
+        print(f"[AVISO] Artigo GEOINFO não encontrado no OpenAlex (nem via autocomplete): {titulo!r} (melhor score: {melhor_score_ac:.3f})")
         return None
 
     print(f"[DEBUG] Escolhido via autocomplete: {melhor_ac.get('display_name')!r} (score={melhor_score_ac:.3f})")
@@ -250,7 +240,7 @@ def buscar_obra_geoinfo_openalex(titulo, ano=None, email=None):
 
 def buscar_citantes_openalex(work, email=None):
     """
-    Dado um work do OpenAlex (o artigo original já casado), busca
+    Dado um work do OpenAlex, busca
     todas as obras que o citam
     """
     cited_by_url = work.get("cited_by_api_url")
@@ -286,7 +276,6 @@ def buscar_citantes_openalex(work, email=None):
             break
 
         pagina += 1
-        # time.sleep(0.3)
 
     print(f"[DEBUG] Total de citantes coletados: {len(citantes)}")
 
@@ -295,15 +284,10 @@ def buscar_citantes_openalex(work, email=None):
 def buscar_metadados_citante_openalex(titulo, ano=None, email=None):
     """
     Busca um artigo CITANTE (título vindo do Scholar) no OpenAlex
-    e retorna seus metadados já extraídos (instituições, país,
-    idioma, tópico, etc.), prontos para preencher uma linha do
-    CSV de citações.
+    e retorna seus metadados já extraídos 
 
-    Reaproveita buscar_obra_geoinfo_openalex — a lógica de busca
-    é a mesma, independente de o título ser do artigo original ou
-    de um citante; o nome da função original só reflete o
-    primeiro uso que demos a ela.
-
+    Reaproveita buscar_obra_geoinfo_openalex 
+    
     Retorna None se não encontrar match confiável em nenhuma das
     camadas de busca.
     """
