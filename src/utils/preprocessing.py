@@ -1,6 +1,14 @@
 import pandas as pd
 from difflib import SequenceMatcher
 
+import re
+import unicodedata
+from difflib import SequenceMatcher
+
+import numpy as np
+import pandas as pd
+
+
 # -=-=-=-=-=- correcao das instituicoes dos artigos GEOINFO -=-=-=-=-=-=- #
 INSTITUICOES_MANUAIS = {
     "GAUS: Graph Analysis of Urban Systems":
@@ -97,19 +105,8 @@ def limpar_artigos(df):
 
 
 ##### pré-processamento final #####
-import re
-import unicodedata
-from difflib import SequenceMatcher
 
-import numpy as np
-import pandas as pd
-
-
-
-# ============================================================
-# LIMPEZA GERAL
-# ============================================================
-
+# limpeza geral
 CARACTERES_INVISIVEIS = {
     "\u200b": "",
     "\u200e": "",
@@ -149,12 +146,7 @@ def limpar_texto(texto):
 def limpar_artigos(df):
     df = df.copy()
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-        .str.replace(" ", "_")
-    )
+    df.columns = (df.columns.str.strip().str.lower().str.replace(" ", "_"))
 
     valores_nulos = [
         "", " ", "NA", "N/A",
@@ -165,9 +157,7 @@ def limpar_artigos(df):
 
     df = df.replace(valores_nulos, pd.NA)
 
-    colunas_texto = df.select_dtypes(
-        include=["object", "string"]
-    ).columns
+    colunas_texto = df.select_dtypes(include=["object", "string"]).columns
 
     for coluna in colunas_texto:
         df[coluna] = df[coluna].apply(limpar_texto)
@@ -175,9 +165,7 @@ def limpar_artigos(df):
     return df
 
 
-# ============================================================
-# CORREÇÃO DE ENCODING — GEOINFO
-# ============================================================
+# correcoes de encoding
 
 CORRECOES_GEOINFO = {
     # palavras/sequências específicas
@@ -275,14 +263,8 @@ def corrigir_encoding_geoinfo(texto):
 
     texto = str(texto)
     texto = corrigir_combinantes(texto)
-    texto = aplicar_substituicoes(
-        texto,
-        CORRECOES_GEOINFO
-    )
-    texto = aplicar_substituicoes(
-        texto,
-        CORRECOES_GEOINFO_RESIDUAIS
-    )
+    texto = aplicar_substituicoes(texto, CORRECOES_GEOINFO)
+    texto = aplicar_substituicoes(texto, CORRECOES_GEOINFO_RESIDUAIS)
 
     return unicodedata.normalize("NFC", texto)
 
@@ -308,20 +290,12 @@ def normalizar_colunas_textuais(df, colunas, corrigir_geoinfo=False):
 
     for coluna in colunas:
         if coluna in df.columns:
-            df[coluna] = df[coluna].apply(
-                lambda x: normalizar_texto(
-                    x,
-                    corrigir_geoinfo=corrigir_geoinfo
-                )
-            )
+            df[coluna] = df[coluna].apply(lambda x: normalizar_texto(x, corrigir_geoinfo=corrigir_geoinfo))
 
     return df
 
 
-# ============================================================
-# PADRONIZAÇÃO DE CAMPOS
-# ============================================================
-
+# padronizacao dos campos
 def padronizar_ano(valor):
     if pd.isna(valor):
         return pd.NA
@@ -442,18 +416,12 @@ def padronizar_idioma(valor):
     return MAPA_IDIOMAS.get(valor, valor)
 
 
-# ============================================================
-# CORREÇÕES MANUAIS
-# ============================================================
-
+# correcoes manuais
 def corrigir_instituicoes_manuais(df):
     df = df.copy()
 
     for titulo, instituicao in INSTITUICOES_MANUAIS.items():
-        mascara = (
-            (df["titulo"] == titulo)
-            & df["instituicoes"].isna()
-        )
+        mascara = ((df["titulo"] == titulo) & df["instituicoes"].isna())
 
         df.loc[mascara, "instituicoes"] = instituicao
 
@@ -464,20 +432,13 @@ def corrigir_edicoes_manuais(df):
     df = df.copy()
 
     for titulo, edicao in EDICOES_MANUAIS.items():
-        mascara = (
-            (df["titulo"] == titulo)
-            & df["edicao"].isna()
-        )
-
+        mascara = ((df["titulo"] == titulo) & df["edicao"].isna())
         df.loc[mascara, "edicao"] = edicao
 
     return df
 
 
-# ============================================================
-# ESTRUTURA
-# ============================================================
-
+# estrutura
 def garantir_colunas(df, colunas):
     df = df.copy()
 
@@ -504,10 +465,7 @@ def verificar_estrutura(dataframes):
     return ok
 
 
-# ============================================================
-# DIAGNÓSTICO
-# ============================================================
-
+# diagnostico
 def resumo_nulos(df, nome):
     resumo = pd.DataFrame({
         "nulos": df.isna().sum(),
@@ -522,13 +480,8 @@ def resumo_tipos(df, nome):
     resumo = pd.DataFrame({
         "tipo": df.dtypes.astype(str),
         "nulos": df.isna().sum(),
-        "percentual_nulos": (
-            df.isna().mean() * 100
-        ).round(2),
-        "valores_unicos": [
-            df[col].nunique(dropna=True)
-            for col in df.columns
-        ],
+        "percentual_nulos": (df.isna().mean() * 100).round(2),
+        "valores_unicos": [df[col].nunique(dropna=True) for col in df.columns],
     })
 
     print(f"\n{'=' * 60}")
@@ -547,11 +500,7 @@ def caracteres_nao_ascii(df, colunas):
         caracteres = set()
 
         for valor in df[coluna].dropna().astype(str):
-            caracteres.update(
-                caractere
-                for caractere in valor
-                if ord(caractere) > 127
-            )
+            caracteres.update(caractere for caractere in valor if ord(caractere) > 127)
 
         if caracteres:
             resultados[coluna] = sorted(caracteres)
@@ -559,11 +508,7 @@ def caracteres_nao_ascii(df, colunas):
     return resultados
 
 
-def encontrar_valores_com_caracteres(
-    df,
-    coluna,
-    caracteres
-):
+def encontrar_valores_com_caracteres(df, coluna, caracteres):
     if coluna not in df.columns:
         return pd.Series(dtype="object")
 
@@ -577,10 +522,7 @@ def encontrar_valores_com_caracteres(
     return df.loc[mascara, coluna]
 
 
-# ============================================================
-# UTILITÁRIOS
-# ============================================================
-
+# utilitarios
 def similaridade_titulos(titulo1, titulo2):
     return SequenceMatcher(
         None,
@@ -591,16 +533,11 @@ def similaridade_titulos(titulo1, titulo2):
 
 
 
-# ============================================================
-# INSTITUIÇÕES — FORMATO NUMERADO (GEOINFO)
-# ============================================================
-
+# instituicoes
 def dividir_instituicoes_numeradas(texto):
     """
-    Formato bruto do GEOINFO: "1 Instituição A 2 Instituição B 3 Instituição A"
-    (um segmento por autor, numerado, sem separador ';'). Divide
-    pelos marcadores numéricos e remove repetições, produzindo o
-    formato "; "-separado usado no resto do pipeline.
+    formato do GEOINFO: "1 Instituição A 2 Instituição B 3 Instituição A"
+    divide pelos marcadores numéricos e remove repetições, produzindo o
     """
     if pd.isna(texto):
         return texto
@@ -613,10 +550,7 @@ def dividir_instituicoes_numeradas(texto):
     return "; ".join(partes_unicas) if partes_unicas else pd.NA
 
 
-# ============================================================
-# AUTORES — REPARO DE SPLIT INCOMPLETO (SCHOLAR)
-# ============================================================
-
+# autores
 def reparar_autores_nao_divididos(valor):
     """
     Alguns registros do Scholar escapam do split "Autores - Veículo,
@@ -632,11 +566,7 @@ def reparar_autores_nao_divididos(valor):
     return valor
 
 
-# ============================================================
-# MAPAS DE PADRONIZAÇÃO — INSTITUIÇÕES E AUTORES
-# (variações de grafia confirmadas manualmente -> forma canônica)
-# ============================================================
-
+# mapas de padronizacao
 MAPA_INSTITUICOES_CANONICAS = {
     "Puc-Rio": "PUC-Rio",
     "Empresa Brasileira de Pesquisa Agropecuaria (Embrapa)":
@@ -691,7 +621,7 @@ def aplicar_mapa_multivalorado(valor, mapa, separador="; "):
     """
     Aplica um mapa de padronização (variação -> forma canônica) a
     um campo multivalorado, removendo duplicatas que a correção
-    possa gerar, preservando a ordem original.
+    possa gerar.
     """
     if pd.isna(valor):
         return valor
@@ -710,13 +640,7 @@ def padronizar_autores(valor):
 
 def padronizar_autor(valor):
     """
-    Normaliza autores no formato "XX Sobrenome" do Google Scholar:
-      - remove reticências finais de truncamento (…)
-      - a PRIMEIRA palavra de cada autor é tratada como iniciais
-        concatenadas (ex. "MCC", "AHF") e mantida em maiúsculo
-      - as demais palavras são capitalizadas normalmente (sobrenome),
-        exceto conectivos comuns (de, da, do, dos, das), que ficam
-        em minúsculo
+    normaliza autores no formato "XX Sobrenome" do Google Scholar
     """
     if pd.isna(valor):
         return valor
@@ -750,39 +674,22 @@ def padronizar_autor(valor):
     return ", ".join(autores_corrigidos)
 
 
-# ============================================================
-# EXPLOSÃO E DIAGNÓSTICO — INSTITUIÇÕES E AUTORES
-# ============================================================
-
+# instituicoes e autores
 def explodir_e_contar(df, coluna, separador="; "):
     """
     Explode uma coluna multivalorada em uma linha por valor
     individual, retornando a contagem de ocorrências de cada
     valor único.
     """
-    serie = (
-        df[coluna]
-        .dropna()
-        .astype(str)
-        .str.split(separador)
-        .explode()
-        .str.strip()
-    )
+    serie = (df[coluna].dropna().astype(str).str.split(separador).explode().str.strip())
     serie = serie[serie != ""]
 
-    return (
-        serie
-        .value_counts()
-        .rename_axis(coluna)
-        .reset_index(name="ocorrencias")
-    )
+    return (serie.value_counts().rename_axis(coluna).reset_index(name="ocorrencias"))
 
 
 def normalizar_para_agrupamento(texto):
     """
-    Normalização agressiva (minúsculo, sem acento, sem pontuação)
-    usada só para AGRUPAR candidatos a variação do mesmo nome —
-    não substitui o texto original em lugar nenhum.
+    Normalização para agrupar candidatos a variação do mesmo nome
     """
     if pd.isna(texto):
         return ""
@@ -797,7 +704,6 @@ def gerar_tabela_valores_unicos(df, coluna, origem):
     """
     Gera a tabela de valores únicos de uma coluna multivalorada,
     com contagem, origem e marcação de candidatos a duplicata
-    (mesmo nome_normalizado, grafia divergente entre os valores).
     """
     tabela = explodir_e_contar(df, coluna)
     tabela["origem"] = origem
@@ -812,9 +718,7 @@ def gerar_tabela_valores_unicos(df, coluna, origem):
 def contar_caracteres_acentuados(texto):
     """
     Conta quantos caracteres do texto têm acento (usado como
-    critério de desempate: nesse dataset, corrupção de encoding
-    tende a remover acentos, então mais acentos é sinal de
-    grafia mais correta).
+    critério de desempate)
     """
     return sum(
         1 for c in unicodedata.normalize("NFD", texto)
@@ -825,24 +729,17 @@ def contar_caracteres_acentuados(texto):
 def gerar_mapa_canonico_automatico(tabela, coluna):
     """
     Para cada grupo de variantes (mesmo nome_normalizado), escolhe
-    automaticamente a forma canônica: a variante mais frequente
-    (ocorrencias); em empate, a com mais caracteres acentuados.
-
-    Retorna um dict {variante: forma_canonica} cobrindo TODAS as
-    variantes de cada grupo com mais de 1 forma distinta — pronto
-    para uso em aplicar_mapa_multivalorado.
+    automaticamente a forma canônica (a variante mais frequente)
     """
     mapa = {}
 
     for nome_normalizado, grupo in tabela.groupby("nome_normalizado"):
         if grupo[coluna].nunique() <= 1:
-            continue  # já é único, nada a mapear
+            continue  
 
         grupo_ordenado = grupo.copy()
         grupo_ordenado["_acentos"] = grupo_ordenado[coluna].apply(contar_caracteres_acentuados)
-        grupo_ordenado = grupo_ordenado.sort_values(
-            ["ocorrencias", "_acentos"], ascending=[False, False]
-        )
+        grupo_ordenado = grupo_ordenado.sort_values(["ocorrencias", "_acentos"], ascending=[False, False])
 
         canonica = grupo_ordenado.iloc[0][coluna]
 
