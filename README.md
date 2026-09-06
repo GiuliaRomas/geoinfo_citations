@@ -21,3 +21,8 @@ Foram utilizadas diferentes fontes para a coleta e o enriquecimento dos dados:
 - **GEOINFO** — trabalhos publicados nas edições do evento;
 - **Google Scholar** — identificação e coleta de trabalhos citantes;
 - **OpenAlex** — identificação de trabalhos, citações e metadados bibliográficos;
+
+## Links relevantes
+
+- Publicação no LinkedIn: https://lnkd.in/p/dfWXJrRT.
+- Base de dados no Zenodo: https://zenodo.org/records/22554183.
